@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCN Auto-Scheduler</title>
+    <meta name="description" content="A premium class scheduling system for LCN Idiomas">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login View -->
+        <div id="login-view" class="view active">
+            <div class="glass-panel login-card">
+                <div class="logo">
+                    <span class="logo-icon">✨</span>
+                    <h1>LCN Scheduler</h1>
+                </div>
+                <p class="subtitle">Welcome back. Please log in to manage your classes.</p>
+                
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required placeholder="samuelcalderon1109@gmail.com">
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-primary" id="login-btn">
+                        <span>Log In</span>
+                        <div class="loader hidden"></div>
+                    </button>
+                    <div id="login-error" class="error-msg"></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view">
+            <nav class="navbar glass-panel">
+                <div class="logo">
+                    <span class="logo-icon">✨</span>
+                    <h2>LCN Scheduler</h2>
+                </div>
+                <div class="nav-user">
+                    <span id="user-name">Loading...</span>
+                    <button id="logout-btn" class="btn-secondary">Log Out</button>
+                </div>
+            </nav>
+
+            <main class="dashboard-content">
+                <header class="dashboard-header">
+                    <h1 class="gradient-text">Schedule your classes</h1>
+                    <p>Find and book classes matching your preferred shifts automatically.</p>
+                </header>
+
+                <div class="dashboard-grid">
+                    <!-- Config Panel -->
+                    <div class="glass-panel config-panel">
+                        <h3>Search Criteria</h3>
+                        <form id="search-form">
+                            <div class="input-group">
+                                <label for="search-date">Date</label>
+                                <input type="date" id="search-date" required>
+                            </div>
+                            
+                            <div class="time-range">
+                                <div class="input-group">
+                                    <label for="start-time">Start Time</label>
+                                    <select id="start-time">
+                                        <option value="360">06:00 AM</option>
+                                        <option value="450">07:30 AM</option>
+                                        <option value="540">09:00 AM</option>
+                                        <option value="630">10:30 AM</option>
+                                        <option value="720">12:00 PM</option>
+                                        <option value="810">01:30 PM</option>
+                                        <option value="900">03:00 PM</option>
+                                        <option value="990">04:30 PM</option>
+                                        <option value="1080">06:00 PM</option>
+                                        <option value="1170">07:30 PM</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="end-time">End Time</label>
+                                    <select id="end-time">
+                                        <option value="450">07:30 AM</option>
+                                        <option value="540">09:00 AM</option>
+                                        <option value="630">10:30 AM</option>
+                                        <option value="720">12:00 PM</option>
+                                        <option value="810">01:30 PM</option>
+                                        <option value="900">03:00 PM</option>
+                                        <option value="990">04:30 PM</option>
+                                        <option value="1080">06:00 PM</option>
+                                        <option value="1170">07:30 PM</option>
+                                        <option value="1260">09:00 PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn-primary full-width" id="search-btn">
+                                <span>Search Classes</span>
+                                <div class="loader hidden"></div>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div class="glass-panel results-panel">
+                        <div class="results-header">
+                            <h3>Available Classes</h3>
+                            <span class="badge" id="results-count">0</span>
+                        </div>
+                        <div id="results-container" class="results-container">
+                            <div class="empty-state">
+                                <p>Select criteria and search to find available classes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
