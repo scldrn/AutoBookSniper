@@ -1,5 +1,6 @@
+const fs = require('fs');
+
 async function run() {
-    // Cargar credenciales desde variables de entorno
     const lcnEmail = process.env.LCN_EMAIL || "YOUR_EMAIL@example.com";
     const lcnPassword = process.env.LCN_PASSWORD || "YOUR_PASSWORD";
 
@@ -72,34 +73,30 @@ async function run() {
       'Referer': 'https://usuarios.lcnidiomas.edu.co/'
     };
 
-    // Consultamos un rango de fechas general (3 días desde hoy)
-    const today = new Date();
-    const formatDate = (d) => d.toISOString().split('T')[0];
-    const startDateStr = formatDate(today);
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 3);
-    const endDateStr = formatDate(endDate);
+    const targetClasses = [
+        { id: 539886, desc: "JUEVES 9:00 AM (LLENA)" },
+        { id: 539887, desc: "VIERNES 7:30 AM (FANTASMA)" },
+        { id: 541111, desc: "SABADO 9:45 AM (BLOQUEADA POR 48H)" }
+    ];
 
-    const boardUrl = `https://api.lcnidiomas.edu.co/api/schedules/between-dates/2/70/${startDateStr}/${endDateStr}?teachers=[]`;
-    const boardRes = await fetch(boardUrl, { method: "GET", headers: lcnHeaders });
-    const boardData = await boardRes.json();
-    const classes = boardData.data || [];
-    
-    console.log(`\n=== ESTADO ACTUAL DEL TABLERO LCN ===`);
-    classes.forEach(c => {
-        const hh = Math.floor(c.start_hour / 60);
-        const mm = c.start_hour % 60;
-        const timeStr = `${hh}:${mm === 0 ? '00' : mm} ${hh < 12 ? 'AM' : 'PM'}`;
-        const day = c.start_date.split(' ')[0]; // yyyy-mm-dd
+    console.log("=== INICIANDO INTENTOS DE RESERVA MANUAL ===");
+
+    for (const c of targetClasses) {
+        console.log(`\nIntentando agendar: ${c.desc} (ID: ${c.id})`);
         
-        // Solo imprimir las que nos interesan (7:30 AM a 12:00 PM)
-        if (c.start_hour >= 450 && c.start_hour <= 720) {
-            console.log(`${day} | ID=${c.id} | Hora=${timeStr} | Nivel=${c.course_level_group_name} | Cupos=${c.reserved}/${c.max_student} | Curso: ${c.course_code}`);
-        }
-    });
-    
-    if (classes.length === 0) {
-        console.log("BOARD DATA:", boardData);
+        const res = await fetch('https://api.lcnidiomas.edu.co/api/student/reservations', {
+            method: 'POST',
+            headers: lcnHeaders,
+            body: JSON.stringify({
+                enrollment_id: 21960,
+                schedule_id: c.id
+            })
+        });
+
+        const data = await res.json();
+        console.log(`Respuesta del servidor LCN:`);
+        console.log(JSON.stringify(data, null, 2));
     }
 }
+
 run();

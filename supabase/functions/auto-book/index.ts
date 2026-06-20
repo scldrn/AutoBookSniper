@@ -26,7 +26,16 @@ serve(async (req) => {
     const h = nowBogota.getHours();
     const m = nowBogota.getMinutes();
 
-    const openingTimes = [ {h:9, m:0}, {h:10, m:30}, {h:12, m:0}, {h:13, m:30} ];
+    const openingTimes = [ 
+        { h: 7, m: 30 },   // Weekday Early
+        { h: 8, m: 15 },   // Saturday
+        { h: 9, m: 0 },    // Weekday
+        { h: 9, m: 45 },   // Saturday
+        { h: 10, m: 30 },  // Weekday
+        { h: 11, m: 15 },  // Saturday
+        { h: 12, m: 0 },   // Weekday
+        { h: 13, m: 30 }   // Weekday
+    ];
     const isOpeningTime = openingTimes.some(t => t.h === h && t.m === m);
     const isPlus1 = openingTimes.some(t => {
         let dh = t.h; let dm = t.m + 1;
@@ -43,7 +52,6 @@ serve(async (req) => {
     const isHourlyCheck = (m === 0 || m === 30);
 
     if (!isOpeningTime && !isPlus1 && !isBackoff && !isHourlyCheck) {
-        // Skip execution silently to save resources and avoid LCN rate limits
         return new Response(JSON.stringify({ skipped: true }), { status: 200, headers: { "Content-Type": "application/json" } });
     }
 
@@ -147,7 +155,7 @@ serve(async (req) => {
     const startDateStr = formatDate(today);
     
     const endDate = new Date(nowBogota.getTime());
-    endDate.setDate(endDate.getDate() + 2);
+    endDate.setDate(endDate.getDate() + 3); // LCN API end_date is exclusive, add 3 to include the 3rd day
     const endDateStr = formatDate(endDate);
 
     const { data: logs } = await supabase.from('booking_logs').select('schedule_id').in('status', ['SUCCESS', 'ALREADY_BOOKED']);
@@ -178,6 +186,15 @@ serve(async (req) => {
         if (cLvl && uLvl && !uLvl.includes(cLvl) && !cLvl.includes(uLvl)) continue;
         
         if (s.reserved >= s.max_student) continue;
+
+        // --- HARD FIREWALL: Evitar multas por clases canceladas manualmente ---
+        // Bloqueamos absolutamente cualquier clase en estas fechas y horas canceladas por el usuario.
+        if (
+            (s.start_date.includes('2026-06-18') && s.start_hour === 450) || // Jueves 18 @ 7:30 AM
+            (s.start_date.includes('2026-06-19') && s.start_hour === 450)    // Viernes 19 @ 7:30 AM
+        ) {
+            continue;
+        }
 
         // 4 hour limit check
         const classBogotaTime = s.start_date.replace(' ', 'T') + '-05:00';

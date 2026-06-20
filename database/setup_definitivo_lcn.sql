@@ -17,10 +17,12 @@ SELECT cron.unschedule('lcn-auto-book-sweep');
 
 -- 3. ACTIVAR EL MOTOR DE ASEDIO (CRON JOB)
 -- El bot despertará religiosamente cada 1 minuto de lunes a viernes,
--- pero su inteligencia artificial decidirá si dispara o se vuelve a apagar.
+-- 3. Programar el Despertador (Cron Job) cada minuto de Lunes a Sábado
+SELECT cron.unschedule('lcn-auto-book-sweep');
+
 SELECT cron.schedule(
     'lcn-auto-book-sweep',
-    '* * * * 1-5',  
+    '* * * * 1-6',  
     $$
     SELECT net.http_post(
         url:='https://aifkamlnlakaxlozypys.supabase.co/functions/v1/auto-book',
